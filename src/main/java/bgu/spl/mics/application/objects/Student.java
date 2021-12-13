@@ -1,0 +1,35 @@
+package bgu.spl.mics.application.objects;
+
+/**
+ * Passive object representing single student.
+ * Add fields and methods to this class as you see fit (including public methods and constructors).
+ */
+public class Student {
+    /**
+     * Enum representing the Degree the student is studying for.
+     */
+    public enum Degree {
+        MSc, PhD
+    }
+
+    private String name;
+    private String department;
+    private Degree status;
+    //number of published results. should increase when conference publishes result
+    private int publications;
+    private int papersRead;
+
+    public Student(){}
+
+    public Student(String _name, String _department, Degree _status){
+        name=_name;
+        department=_department;
+        status=_status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+
+}
