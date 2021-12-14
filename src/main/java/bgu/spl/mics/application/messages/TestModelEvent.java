@@ -15,6 +15,5 @@ import bgu.spl.mics.Future;
                         }
  */
 public class TestModelEvent implements Event<String> {
-
     Future<String> result;
 }

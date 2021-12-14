@@ -1,5 +1,9 @@
 package bgu.spl.mics.application.services;
+import bgu.spl.mics.MessageBus;
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DataPreProcessEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.CPU;
 
 /**
@@ -24,6 +28,13 @@ public class CPUService extends MicroService {
 
     @Override
     protected void initialize() {
-
+        // Add message+callback to subscriptions
+        subscribeEvent(DataPreProcessEvent.class,e->{});
+        subscribeBroadcast(TickBroadcast.class, b->{});
+        // register CPU
+        MessageBusImpl.getInstance().register(this);
+        // subscribe to relevant messages in MessageBus
+        MessageBusImpl.getInstance().subscribeEvent(DataPreProcessEvent.class,this);
+        MessageBusImpl.getInstance().subscribeBroadcast(TickBroadcast.class,this);
     }
 }

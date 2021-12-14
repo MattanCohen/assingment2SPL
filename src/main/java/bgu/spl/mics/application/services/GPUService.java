@@ -1,8 +1,11 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DataPreProcessEvent;
 import bgu.spl.mics.application.messages.TestModelEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrainModelEvent;
 import bgu.spl.mics.application.objects.GPU;
 import org.junit.Test;
@@ -26,16 +29,18 @@ public class GPUService extends MicroService {
 
     @Override
     protected void initialize() {
-        // register to message bus
-        MessageBusImpl.getInstance().register(this);
-        // add TrainModel + TestModel callbacks
+
+        // Add message+callback to subscriptions
         /*need to update callbacks*/
-        /*only when in training model we want to subscribe to tick model?*/
         subscribeEvent(TrainModelEvent.class,e->{});
         subscribeEvent(TestModelEvent.class,e->{});
-        // subscribe to TrainModel+TestModel in messageBus
+        subscribeBroadcast(TickBroadcast.class,b->{});
+        // register to message bus
+        MessageBusImpl.getInstance().register(this);
+        // subscribe to relevant messages in MessageBus
         MessageBusImpl.getInstance().subscribeEvent(TrainModelEvent.class,this);
         MessageBusImpl.getInstance().subscribeEvent(TestModelEvent.class,this);
+        MessageBusImpl.getInstance().subscribeBroadcast(TickBroadcast.class,this);
     }
 
 }

@@ -1,7 +1,9 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.PublishConferenceBroadcast;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Student;
 
 /*
@@ -27,6 +29,13 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
+        // Add message+callback to subscriptions
+        subscribeBroadcast(PublishConferenceBroadcast.class, b->{});
+
+        // register to message bus
+        MessageBusImpl.getInstance().register(this);
+        // subscribe to relevant messages in MessageBus
+        MessageBusImpl.getInstance().subscribeBroadcast(PublishConferenceBroadcast.class,this);
 
     }
 }

@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TickBroadcast;
@@ -36,7 +37,8 @@ public class TimeService extends MicroService  {
 
 	@Override
 	protected void initialize() {
-
+		// register timeService so that it can send TickBroadcasts
+		MessageBusImpl.getInstance().register(this);
 	}
 
 }
