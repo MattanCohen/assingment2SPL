@@ -33,6 +33,34 @@ public class Cluster {
 	public void setGPUs(GPU[]_gpus){gpus=_gpus;}
 	public void setCPUs(CPU[]_cpus){cpus=_cpus;}
 
+	/**
+	 * based on the batch data type,
+	 * find the best CPU to add to batch list
+	 * */
+	public CPU getOptimalCPU(Data.Type dType) {
+		int tickMultiplier = 1;
+		// based on data type we ticks needed to process data change
+		if (dType==Data.Type.Images) {tickMultiplier=4;}
+		else if (dType==Data.Type.Tabular) {tickMultiplier=2;}
 
+		int minIndex = 0;
+		int cores = cpus[0].getCores();
+		int minNewTicksToClearQueue = cpus[0].getTicksToClearQueue()+(32/cores)*tickMultiplier;
+
+		// get the core that will need the least ticks to clear queue with new batch
+		for(int i=1; i<cpus.length; i++) {
+			cores = cpus[i].getCores();
+			// calculate number of ticks with new batch added
+			int newTicksToClearQueue = cpus[i].getTicksToClearQueue()+(32/cores)*tickMultiplier;
+			// update fields with better CPU
+			if (newTicksToClearQueue<minNewTicksToClearQueue) {
+				minIndex=i;
+				minNewTicksToClearQueue=newTicksToClearQueue;
+			}
+		}
+		// return the optimal CPU for the job
+		return cpus[minIndex];
+
+	}
 
 }

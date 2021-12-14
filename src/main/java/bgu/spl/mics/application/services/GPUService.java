@@ -8,7 +8,10 @@ import bgu.spl.mics.application.messages.TestModelEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrainModelEvent;
 import bgu.spl.mics.application.objects.GPU;
+import bgu.spl.mics.application.objects.Model;
 import org.junit.Test;
+
+import java.util.Queue;
 
 /**
  * GPU service is responsible for handling the
@@ -29,7 +32,6 @@ public class GPUService extends MicroService {
 
     @Override
     protected void initialize() {
-
         // Add message+callback to subscriptions
         /*need to update callbacks*/
         subscribeEvent(TrainModelEvent.class,e->{});

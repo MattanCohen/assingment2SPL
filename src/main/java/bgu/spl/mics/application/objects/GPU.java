@@ -1,5 +1,13 @@
 package bgu.spl.mics.application.objects;
 
+import bgu.spl.mics.Message;
+import bgu.spl.mics.MessageBusImpl;
+import bgu.spl.mics.application.services.GPUService;
+import org.junit.Ignore;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Passive object representing a single GPU.
  * Add all the fields described in the assignment as private fields.
@@ -15,6 +23,12 @@ public class GPU {
     private Model model;
     final private Cluster cluster;
 
+    // list of models GPU needs to train (according to round robin)
+    // tickCounter = number of ticks counted needed to train model
+    int tickCounter;
+    private Queue<Model> modelsToTrain;
+
+
     /**
      * @param _type GPU type
      * @param _cluster GPU is linked to
@@ -23,6 +37,8 @@ public class GPU {
     public GPU(Type _type, Cluster _cluster){
         type=_type;
         cluster=_cluster;
+        modelsToTrain = new LinkedList();
+        tickCounter = 0;
     }
 
     /**receive a model (change newModel's status to training)
@@ -35,9 +51,24 @@ public class GPU {
      */
     public Model trainModel(Model newModel){
         model=newModel;
-        //split data to batches (of 1000)
+        // data preparation in CPU's:
+        // split data to batches (of 1000)
+        // send events to cluster
+
+        // calc num of ticks needed to train model
+        model.setStatus(Model.Status.Training);
+        int ticksToTrainModel=0;
+        if(type==Type.RTX3090) {ticksToTrainModel=1;}
+        else if(type==Type.RTX2080) {ticksToTrainModel=2;}
+        else if (type==Type.GTX1080) {ticksToTrainModel=4;}
+
+        // train GPU model event
+        while(tickCounter<ticksToTrainModel) {
+
+        }
         return model;
     }
+
 
     /**receive a model, test it, change newModel's status to tested and return the result
      * @pre model.getStatus() = Status.Trained

@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.objects;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -13,7 +14,8 @@ public class CPU {
     final int cores;
     Queue<DataBatch> data;
     final private Cluster cluster;
-
+    // number of ticks required to clear queue
+    private int ticksToClearQueue;
     /**
      *
      * @param _cores
@@ -23,6 +25,8 @@ public class CPU {
     public CPU(int _cores, Cluster _cluster){
         cores=_cores;
         cluster=_cluster;
+        ticksToClearQueue = 0;
+        data = new LinkedList<>();
     }
 
     /**
@@ -39,6 +43,16 @@ public class CPU {
      * @post data is in queue this.data
      */
     public void addData(DataBatch data){
+        // add batch to queue
+        this.data.add(data);
+        // calculate and add num of ticks needed to process batch
+        Data.Type dType =data.getData().getType();
+        int tickMultiplier = 1;
+        // based on data type we ticks needed to process data change
+        if (dType==Data.Type.Images) {tickMultiplier=4;}
+        else if (dType==Data.Type.Tabular) {tickMultiplier=2;}
+
+        ticksToClearQueue+= (32/cores)*tickMultiplier;
 
     }
 
@@ -66,6 +80,13 @@ public class CPU {
      */
     public DataBatch processData(){
         return null;
+
+        // update ticksToClearQueue each time a tick passes
     }
+
+    /**
+     * return the number of ticks until CPU finishes with all batches
+     * */
+    public int getTicksToClearQueue(){return ticksToClearQueue;}
 
 }

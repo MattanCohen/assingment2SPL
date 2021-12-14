@@ -229,11 +229,15 @@ public class MessageBusImpl implements MessageBus {
 		// checks if microservice message queue is empty and blocks if empty
 		while (microServices.get(m).size()==0) {
 			try {
-				wait();
-			} catch (InterruptedException e){}
+				Thread.currentThread().wait();
+			} catch (InterruptedException e){
+				// check again if microservice queue has been changed
+				continue;
+			}
 		}
-		// pulls message from microservice queue and returns it
+
 		return microServices.get(m).remove();
+
 	}
 
 	
