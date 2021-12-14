@@ -30,8 +30,8 @@ public class TimeService extends MicroService  {
 	 */
 	public void tick(){
 		tickCount++;
-		// do we want to change TickBroadcast?
-		MessageBusImpl.getInstance().sendBroadcast(new TickBroadcast());
+		// do we want to change TickBroadcast to include other fields?
+		sendBroadcast(new TickBroadcast());
 	}
 
 	@Override
