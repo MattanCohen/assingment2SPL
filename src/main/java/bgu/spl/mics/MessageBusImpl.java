@@ -48,7 +48,7 @@ public class MessageBusImpl implements MessageBus {
 			messages.put(type,new MicroPair<>(0,new LinkedList<MicroService>()));
 			messages.get(type).second().add(m);
 		}
-		//not firt time show
+		//not first time show
 		else{
 			messages.get(type).second().add(messages.get(type).second().size()+1,m);
 		}
@@ -212,19 +212,28 @@ public class MessageBusImpl implements MessageBus {
 	 * */
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// marks if message queue of m in message bus is empty
+		// checks if microservice is registered
+		if(microServices.get(m)==null) {
+			throw new IllegalStateException();
+		}
+		/*
+		// make sure microservice is registered
 		boolean noneEx=true;
 		for (MicroService f: microServices.keySet())
 			if (f==m)
 				noneEx=false;
 		if (noneEx)
 			throw new IllegalStateException();
+
+		 */
+		// checks if microservice message queue is empty and blocks if empty
 		while (microServices.get(m).size()==0) {
 			try {
 				wait();
 			} catch (InterruptedException e){}
 		}
-		return null;
+		// pulls message from microservice queue and returns it
+		return microServices.get(m).remove();
 	}
 
 	

@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TickBroadcast;
 
 /**
  * TimeService is the global system timer There is only one instance of this micro-service.
@@ -14,11 +16,22 @@ import bgu.spl.mics.MicroService;
 public class TimeService extends MicroService  {
 	private int spd;
 	private int drt;
+	private int tickCount;
 
 	public TimeService(int speed,int duration){
 		super("TimeService");
 		spd=speed;
 		drt=duration;
+		tickCount = 0;
+	}
+
+	/**
+	 * performs a system tick and sends a system broadcast
+	 */
+	public void tick(){
+		tickCount++;
+		// do we want to change TickBroadcast?
+		MessageBusImpl.getInstance().sendBroadcast(new TickBroadcast());
 	}
 
 	@Override

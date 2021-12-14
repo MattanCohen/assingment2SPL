@@ -10,7 +10,7 @@ import bgu.spl.mics.Future;
     -some GPU receives the event
     -GPU updates the object
     -msgBus sets future={
-                            "Good" with probability of 0.1 for MSc and 0.2 for PhD
+                            "Good" with probability of 0.6 for MSc and 0.8 for PhD
                             "Bad" else
                         }
  */

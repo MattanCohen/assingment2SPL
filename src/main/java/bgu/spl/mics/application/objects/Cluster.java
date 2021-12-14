@@ -15,7 +15,9 @@ public class Cluster {
 
 	private GPU[] gpus;
 	private CPU[] cpus;
-	private LinkedList<String> names;
+	// make sure GPU updates cluster each time a model is trained
+	private LinkedList<String> trainedModelsNames;
+	// total number of data batches
 	private int dataCPU;
 	private int timeCPU;
 	private int timeGPU;
