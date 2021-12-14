@@ -19,10 +19,6 @@ public class CRMSRunner {
         Student[] students = extractStudentList(inputJson);
         // gets list of models for corresponding student index
         Model[][] modelMatrix = extractModelMatrix(inputJson,students);
-        /*
-         * create for each model a "train difficulty" estimate,
-         * and based on it we could assign the model to easier cpu's(?)
-         * */
         Cluster cluster = Cluster.getInstance();
 
         GPU[] gpus = extractGPUList(inputJson, cluster);
@@ -31,20 +27,12 @@ public class CRMSRunner {
         cluster.setCPUs(cpus);
         cluster.setGPUs(gpus);
 
-        /*
-         * calculate the max gpu type and max cpu core to create for
-         * each model the min/max amount of time for training the model
-         * this way we can put the students to sleep for a specific amount of time that is always required
-         * */
-
         ConfrenceInformation[] conferences = extractConferenceList(inputJson);
         // global variables relevant for time service
         int tickTime = inputJson.get("TickTime").getAsInt();
         int systemDuration = inputJson.get("Duration").getAsInt();
 
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
-
-
     }
 
     /******************* Functions to Extract objects from Input File **************************************

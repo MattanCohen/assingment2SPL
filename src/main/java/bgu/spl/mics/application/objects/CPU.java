@@ -3,6 +3,7 @@ package bgu.spl.mics.application.objects;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive object representing a single CPU.
@@ -15,7 +16,7 @@ public class CPU {
     Queue<DataBatch> data;
     final private Cluster cluster;
     // number of ticks required to clear queue
-    private int ticksToClearQueue;
+    private AtomicInteger ticksToClearQueue;
     /**
      *
      * @param _cores
@@ -25,7 +26,7 @@ public class CPU {
     public CPU(int _cores, Cluster _cluster){
         cores=_cores;
         cluster=_cluster;
-        ticksToClearQueue = 0;
+        ticksToClearQueue = new AtomicInteger(0);
         data = new LinkedList<>();
     }
 
@@ -52,8 +53,8 @@ public class CPU {
         if (dType==Data.Type.Images) {tickMultiplier=4;}
         else if (dType==Data.Type.Tabular) {tickMultiplier=2;}
 
-        ticksToClearQueue+= (32/cores)*tickMultiplier;
-
+        // make sure data addition is done without multiple threads
+        ticksToClearQueue.compareAndSet(ticksToClearQueue.intValue(),ticksToClearQueue.intValue()+(32/cores)*tickMultiplier);
     }
 
     /**
@@ -81,12 +82,12 @@ public class CPU {
     public DataBatch processData(){
         return null;
 
-        // update ticksToClearQueue each time a tick passes
+        // update ticksToClearQueue each time a tick passes with compareandset
     }
 
     /**
      * return the number of ticks until CPU finishes with all batches
      * */
-    public int getTicksToClearQueue(){return ticksToClearQueue;}
+    public int getTicksToClearQueue(){return ticksToClearQueue.intValue();}
 
 }

@@ -21,6 +21,7 @@ public class Cluster {
 	private int dataCPU;
 	private int timeCPU;
 	private int timeGPU;
+	
 	private static class SingletonHolder{
 		private static Cluster instance=new Cluster();
 	}
@@ -60,7 +61,6 @@ public class Cluster {
 		}
 		// return the optimal CPU for the job
 		return cpus[minIndex];
-
 	}
 
 }

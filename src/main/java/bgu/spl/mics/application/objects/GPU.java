@@ -54,7 +54,7 @@ public class GPU {
         // data preparation in CPU's:
         // split data to batches (of 1000)
         // send events to cluster
-
+        // number of events based on GPU type (VRAM)
         // calc num of ticks needed to train model
         model.setStatus(Model.Status.Training);
         int ticksToTrainModel=0;
