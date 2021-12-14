@@ -25,16 +25,7 @@ public class TimeService extends MicroService  {
 		drt=duration;
 		tickCount = 0;
 	}
-
-	/**
-	 * performs a system tick and sends a system broadcast
-	 */
-	public void tick(){
-		tickCount++;
-		// do we want to change TickBroadcast to include other fields?
-		sendBroadcast(new TickBroadcast());
-	}
-
+	
 	@Override
 	protected void initialize() {
 		// register timeService so that it can send TickBroadcasts
