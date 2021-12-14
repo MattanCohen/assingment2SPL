@@ -25,11 +25,13 @@ public class TimeService extends MicroService  {
 		drt=duration;
 		tickCount = 0;
 	}
-	
+
 	@Override
 	protected void initialize() {
 		// register timeService so that it can send TickBroadcasts
 		MessageBusImpl.getInstance().register(this);
+		// how to make sure TickBroadcast is sent?
+		// do we need to create an event tick?
 	}
 
 }

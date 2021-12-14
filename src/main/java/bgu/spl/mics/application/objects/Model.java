@@ -14,6 +14,7 @@ public class Model {
         None,Good,Bad
     }
 
+    // model name is unique
     final private String name;
     //the data the model should train on
     private Data data;

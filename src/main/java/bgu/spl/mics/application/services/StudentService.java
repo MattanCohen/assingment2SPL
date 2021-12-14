@@ -37,5 +37,7 @@ public class StudentService extends MicroService {
         // subscribe to relevant messages in MessageBus
         MessageBusImpl.getInstance().subscribeBroadcast(PublishConferenceBroadcast.class,this);
 
+        //**send TrainModel events for each model that is related to student**
+
     }
 }
