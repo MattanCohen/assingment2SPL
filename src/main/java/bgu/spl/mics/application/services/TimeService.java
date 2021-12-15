@@ -26,6 +26,10 @@ public class TimeService extends MicroService  {
 		tickCount = 0;
 	}
 
+	public int getTickCount() {
+		return tickCount;
+	}
+
 	@Override
 	protected void initialize() {
 		// register timeService so that it can send TickBroadcasts

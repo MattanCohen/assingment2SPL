@@ -88,6 +88,6 @@ public class CPU {
     /**
      * return the number of ticks until CPU finishes with all batches
      * */
-    public int getTicksToClearQueue(){return ticksToClearQueue.intValue();}
+    public int getTicksToClearQueue(){return ticksToClearQueue.get();}
 
 }

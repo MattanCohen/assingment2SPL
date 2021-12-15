@@ -21,7 +21,11 @@ public class Cluster {
 	private int dataCPU;
 	private int timeCPU;
 	private int timeGPU;
-	
+
+	public void statistics(){
+		timeCPU=
+	}
+
 	private static class SingletonHolder{
 		private static Cluster instance=new Cluster();
 	}
@@ -33,6 +37,12 @@ public class Cluster {
 	private Cluster(){}
 	public void setGPUs(GPU[]_gpus){gpus=_gpus;}
 	public void setCPUs(CPU[]_cpus){cpus=_cpus;}
+
+	synchronized public void processBatch(DataBatch toProcess){
+		CPU work=getOptimalCPU(toProcess.getData().getType());
+		work.addData(toProcess);
+		work.processData();
+	}
 
 	/**
 	 * based on the batch data type,
@@ -62,5 +72,7 @@ public class Cluster {
 		// return the optimal CPU for the job
 		return cpus[minIndex];
 	}
+
+
 
 }

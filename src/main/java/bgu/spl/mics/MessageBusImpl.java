@@ -180,6 +180,7 @@ public class MessageBusImpl implements MessageBus {
 		for (Class<? extends Message> e: messages.keySet())
 			messages.get(e).second().remove(m);
 		microServices.remove(m);
+		m.terminate();
 	}
 
 
@@ -211,33 +212,18 @@ public class MessageBusImpl implements MessageBus {
 	private HashMap<Event,Future> eventFutures;
 	 * */
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
+	 synchronized public Message awaitMessage(MicroService m) throws InterruptedException {
 		// checks if microservice is registered
 		if(microServices.get(m)==null) {
 			throw new IllegalStateException();
 		}
-		/*
-		// make sure microservice is registered
-		boolean noneEx=true;
-		for (MicroService f: microServices.keySet())
-			if (f==m)
-				noneEx=false;
-		if (noneEx)
-			throw new IllegalStateException();
-
-		 */
 		// checks if microservice message queue is empty and blocks if empty
 		while (microServices.get(m).size()==0) {
 			try {
 				Thread.currentThread().wait();
-			} catch (InterruptedException e){
-				// check again if microservice queue has been changed
-				continue;
-			}
+			} catch (InterruptedException e){}
 		}
-
 		return microServices.get(m).remove();
-
 	}
 
 	

@@ -27,6 +27,7 @@ import java.util.Queue;
  */
 public abstract class MicroService implements Runnable {
 
+    private boolean initialized;
     private boolean terminated = false;
     private final String name;
     private HashMap<Class<? extends Message>,Callback> subscriptions;
@@ -38,6 +39,7 @@ public abstract class MicroService implements Runnable {
      */
     public MicroService(String name) {
         this.name = name;
+        initialized=false;
         subscriptions=new HashMap<Class<? extends Message>,Callback>();
         messageQueue=new LinkedList<Class<? extends Message>>();
     }
@@ -143,6 +145,7 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
+        initialized=false;
         this.terminated = true;
     }
 
@@ -160,9 +163,30 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-        initialize();
-        while (!terminated) {
-            System.out.println("NOT IMPLEMENTED!!!");
+        if (!initialized){
+            initialize();
+            while (!terminated) {
+                try{
+                    Message toDo=MessageBusImpl.getInstance().awaitMessage(this);
+                    subscriptions.get(toDo).call(toDo);
+                }catch(IllegalStateException e){
+                } catch(InterruptedException e){
+                }
+            }
         }
+        else{
+            if (!terminated) {
+                try{
+                    Message toDo=MessageBusImpl.getInstance().awaitMessage(this);
+                    subscriptions.get(toDo).call(toDo);
+                }catch(IllegalStateException e){
+                } catch(InterruptedException e){
+                }
+            }
+        }
+
     }
 }
+
+//                private HashMap<Class<? extends Message>,Callback> subscriptions;
+//                private Queue<Class<? extends Message>> messageQueue;

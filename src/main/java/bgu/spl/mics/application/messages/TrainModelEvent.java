@@ -2,6 +2,7 @@ package bgu.spl.mics.application.messages;
 
 import bgu.spl.mics.Event;
 import bgu.spl.mics.Future;
+import bgu.spl.mics.application.objects.Model;
 
 /*
     Sent by the Student, this event is at the core of the system. It will
@@ -19,4 +20,17 @@ public class TrainModelEvent implements Event<Boolean> {
 
     //set result=true when all data of this event was processed
     Future<Boolean> result;
+    Model model;
+
+    public TrainModelEvent(Model _model){
+        model=_model;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public Future<Boolean> getResult() {
+        return result;
+    }
 }

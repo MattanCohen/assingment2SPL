@@ -11,11 +11,16 @@ public class DataBatch {
     private Data data;
     //index of first sample in batch
     private int start_index;
+    //true if data batch is processed
+    private boolean processed;
 
     public DataBatch (Data _data, int _start_index){
         data=_data;
         start_index=_start_index;
+        processed=false;
     }
+
+    public boolean isProcessed() {return processed;}
 
     public Data getData() {
         return data;

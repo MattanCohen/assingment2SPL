@@ -31,6 +31,8 @@ public class Model {
         result=Result.None;
     }
 
+    public Data getData() {return data;}
+
     public Status getStatus() {
         return status;
     }
