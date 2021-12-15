@@ -193,6 +193,3 @@ public abstract class MicroService implements Runnable {
 
     }
 }
-
-//                private HashMap<Class<? extends Message>,Callback> subscriptions;
-//                private Queue<Class<? extends Message>> messageQueue;

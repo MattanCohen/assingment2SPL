@@ -1,5 +1,4 @@
 package bgu.spl.mics.application.services;
-import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DataPreProcessEvent;
@@ -22,11 +21,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CPUService extends MicroService {
 
     private CPU cpu;
-    AtomicInteger time;
+    // number of ticks cpu has used to process batches
+    AtomicInteger timeUsed;
 
     public CPUService(String name, CPU _cpu){
         super(name);
         cpu=_cpu;
+        timeUsed = new AtomicInteger(0);
     }
 
 
@@ -37,12 +38,15 @@ public class CPUService extends MicroService {
         MessageBusImpl.getInstance().register(this);
         // Add tick and callback to subscriptions
         subscribeBroadcast(TickBroadcast.class, b-> {
+            // only if CPU has batches to process
+            if(cpu.getTicksToClearQueue()>0) {
             //add a second to time counter
-            int f = time.get();
-            while (time.compareAndSet(f, f + 1)) {
-                f = time.get();
-            //tick the first data cpu is working at
-            cpu.processData();
+            int f = timeUsed.get();
+            while (timeUsed.compareAndSet(f, f + 1)) {
+                f = timeUsed.get();
+                //tick the first data cpu is working at
+                cpu.processData();
+            }
             }
         });
     }

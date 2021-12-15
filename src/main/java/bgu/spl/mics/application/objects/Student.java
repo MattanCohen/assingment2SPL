@@ -25,14 +25,19 @@ public class Student {
         name=_name;
         department=_department;
         status=_status;
+        publications=0;
+        papersRead=0;
     }
 
     public String getName() {
         return name;
     }
 
-
     public Degree getStatus() {
         return status;
     }
+
+    // increase publications/papers read by 1
+    public void publicationsIncrement() { publications++;}
+    public void papersReadIncrement() { papersRead++;}
 }

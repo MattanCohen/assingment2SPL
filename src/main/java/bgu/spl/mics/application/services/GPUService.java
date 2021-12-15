@@ -118,25 +118,26 @@ public class GPUService extends MicroService {
             //finish working on model
             toTrain.setStatus(Model.Status.Trained);
             gpu.removeModel(toTrain);
+            gpu.getCluster().addTrainedModel(toTrain.getName());
             MessageBusImpl.getInstance().complete(e,true);
         });
         subscribeEvent(TestModelEvent.class,e->{
-            //set model's result to bad if it exists
+            //default model result is bad
             String result="Bad";
             if (e.getModel()!=null)
                 e.getModel().setResult(Model.Result.Bad);
             //create random number 0-99
             int random=(int)(100*Math.random());
-            //in case student is phd, prob is 0.2 to change to good
+            //in case student is phd, prob is 0.8 to change to good
             if (e.getModel().getStudent().getStatus()== Student.Degree.PhD){
-                if (random<20){
+                if (random<80){
                     e.getModel().setResult(Model.Result.Good);
                     result="Good";
                 }
             }
-            //prob is 0.1
+            //prob is 0.6 for MSc student to change to good
             else{
-                if (random<10){
+                if (random<60){
                     e.getModel().setResult(Model.Result.Good);
                     result="Good";
                 }

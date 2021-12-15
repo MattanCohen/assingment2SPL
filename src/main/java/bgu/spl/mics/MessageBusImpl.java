@@ -133,7 +133,7 @@ public class MessageBusImpl implements MessageBus {
 		// add event to a specific microservice's queue in a round robin matter
 		Integer counter = messages.get(e.getClass()).first();
 		// if we reached end of the link, round robin, reset counter
-		if(counter==messages.get(e.getClass()).second().size())
+		if(counter>=messages.get(e.getClass()).second().size())
 			counter=0;
 		//add event to the microService we chose round redrobindhoodly
 		MicroService microService = messages.get(e.getClass()).second().get(counter);

@@ -4,7 +4,10 @@ import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.PublishConferenceBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
+
+import java.util.LinkedList;
 
 /*
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -30,8 +33,18 @@ public class StudentService extends MicroService {
     @Override
     protected void initialize() {
         // Add message+callback to subscriptions
-        subscribeBroadcast(PublishConferenceBroadcast.class, b->{});
-
+        subscribeBroadcast(PublishConferenceBroadcast.class, b->{
+            LinkedList<Model> publishedModels = b.getPublishedModels();
+            // each model in the conference changes Student
+            for(Model m:publishedModels) {
+                // Student has another published paper or read another paper
+                if (m.getStudent() == std)
+                    std.publicationsIncrement();
+                else {
+                    std.papersReadIncrement();
+                }
+            }
+        });
         // register to message bus
         MessageBusImpl.getInstance().register(this);
         // subscribe to relevant messages in MessageBus

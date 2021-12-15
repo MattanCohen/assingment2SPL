@@ -1,8 +1,7 @@
 package bgu.spl.mics.application.objects;
-import bgu.spl.mics.MessageBusImpl;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Passive object representing the cluster.
@@ -34,13 +33,15 @@ public class Cluster {
 	 */
 	synchronized public static Cluster getInstance(){return Cluster.SingletonHolder.instance;}
 
-	private Cluster(){}
+	private Cluster(){
+		trainedModelsNames = new LinkedList<>();
+	}
 	public void setGPUs(GPU[]_gpus){gpus=_gpus;}
 	public void setCPUs(CPU[]_cpus){cpus=_cpus;}
 
 	//add to optimal cpu the data. it will be processed with ticks
 	synchronized public void addBatchToProcess(DataBatch toProcess){
-		CPU work=getOptimalCPU(toProcess.getData().getType());
+		CPU work=getOptimalCPU(toProcess);
 		work.addData(toProcess);
 	}
 
@@ -48,21 +49,16 @@ public class Cluster {
 	 * based on the batch data type,
 	 * find the best CPU to add to batch list
 	 * */
-	public CPU getOptimalCPU(Data.Type dType) {
-		int tickMultiplier = 1;
-		// based on data type we ticks needed to process data change
-		if (dType==Data.Type.Images) {tickMultiplier=4;}
-		else if (dType==Data.Type.Tabular) {tickMultiplier=2;}
-
+	public CPU getOptimalCPU(DataBatch dataBatch) {
 		int minIndex = 0;
 		int cores = cpus[0].getCores();
-		int minNewTicksToClearQueue = cpus[0].getTicksToClearQueue()+(32/cores)*tickMultiplier;
+		int minNewTicksToClearQueue = cpus[0].getTicksToClearQueue()+dataBatch.getTimeToDoBatch(cpus[0]);
 
 		// get the core that will need the least ticks to clear queue with new batch
 		for(int i=1; i<cpus.length; i++) {
 			cores = cpus[i].getCores();
 			// calculate number of ticks with new batch added
-			int newTicksToClearQueue = cpus[i].getTicksToClearQueue()+(32/cores)*tickMultiplier;
+			int newTicksToClearQueue = cpus[i].getTicksToClearQueue()+dataBatch.getTimeToDoBatch(cpus[i]);
 			// update fields with better CPU
 			if (newTicksToClearQueue<minNewTicksToClearQueue) {
 				minIndex=i;
@@ -71,6 +67,12 @@ public class Cluster {
 		}
 		// return the optimal CPU for the job
 		return cpus[minIndex];
+	}
+
+	public void addTrainedModel(String modelName) {
+		// *************need to create AtomicReference for linked list names****************
+		// ************or find way to lock LinkedList trainedModelsNames********************
+
 	}
 
 

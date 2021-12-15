@@ -113,16 +113,19 @@ public class CPU {
      * if getNumOfBatches()>0: @post first batch in queue this.data is removed
      */
     synchronized public DataBatch processData(){
+        //****** processData only works if there are batches in queue**********************/
         //if theres elements
-        if (data.get().size()>0){
-            //down 1 tick for first element in data queue
-            data.get().peek().setFirst(data.get().peek().first()-1);
-            //if first batch was running for enough ticks remove it from data queue and set as processed
-            if (data.get().peek().first()==0){
-                return removeFirstData();
-            }
+        //if (data.get().size()>0){
+        //***************** remove until here**********************************************
+        //down 1 tick for first element in data queue
+        data.get().peek().setFirst(data.get().peek().first()-1);
+        ticksToClearQueue.compareAndSet(ticksToClearQueue.get(),ticksToClearQueue.get()-1);
+        //if first batch was running for enough ticks remove it from data queue and set as processed
+        if (data.get().peek().first()==0){
+            return removeFirstData();
         }
-        //if theres no elements
+
+        // default return value
         return null;
     }
 

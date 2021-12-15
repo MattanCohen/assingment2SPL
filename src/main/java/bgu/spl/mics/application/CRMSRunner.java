@@ -33,6 +33,13 @@ public class CRMSRunner {
         int systemDuration = inputJson.get("Duration").getAsInt();
 
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
+
+
+        // runSystem (prepare threads and events needed to be utilized
+
+        // collect data and prepare output file
+
+
     }
 
     /******************* Functions to Extract objects from Input File **************************************
