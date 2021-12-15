@@ -32,4 +32,7 @@ public class Student {
     }
 
 
+    public Degree getStatus() {
+        return status;
+    }
 }

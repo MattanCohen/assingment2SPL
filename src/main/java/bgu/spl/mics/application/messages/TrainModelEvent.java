@@ -24,13 +24,11 @@ public class TrainModelEvent implements Event<Boolean> {
 
     public TrainModelEvent(Model _model){
         model=_model;
+        result=new Future<Boolean>();
     }
 
     public Model getModel() {
         return model;
     }
 
-    public Future<Boolean> getResult() {
-        return result;
-    }
 }

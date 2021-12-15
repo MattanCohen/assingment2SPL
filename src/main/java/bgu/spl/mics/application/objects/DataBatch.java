@@ -20,8 +20,18 @@ public class DataBatch {
         processed=false;
     }
 
-    public boolean isProcessed() {return processed;}
+    public int getTimeToDoBatch(CPU cpu){
+        int tickMultiplier = 1;
+        // based on data type we ticks needed to process data change
+        if (data.getType()==Data.Type.Images) {tickMultiplier=4;}
+        else if (data.getType()==Data.Type.Tabular) {tickMultiplier=2;}
+        int minIndex = 0;
+        int cores = cpu.getCores();
+        return (32/cores)*tickMultiplier;
+    }
 
+    public boolean isProcessed() {return processed;}
+    public void finishProcessing(){processed=true;}
     public Data getData() {
         return data;
     }

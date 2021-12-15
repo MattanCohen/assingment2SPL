@@ -17,5 +17,13 @@ import bgu.spl.mics.application.objects.Model;
  */
 public class TestModelEvent implements Event<String> {
     Future<String> result;
+    Model model;
 
+    public Future<String> getResult() {
+        return result;
+    }
+
+    public Model getModel() {
+        return model;
+    }
 }

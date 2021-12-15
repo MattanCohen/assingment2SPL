@@ -221,7 +221,7 @@ public class MessageBusImpl implements MessageBus {
 		while (microServices.get(m).size()==0) {
 			try {
 				Thread.currentThread().wait();
-			} catch (InterruptedException e){}
+			} catch (InterruptedException e){throw e;}
 		}
 		return microServices.get(m).remove();
 	}

@@ -33,15 +33,17 @@ public class CPUService extends MicroService {
 
     @Override
     protected void initialize() {
-        // Add message+callback to subscriptions
-        // DataPreProcessEvent should be managed by cluster??
-        subscribeBroadcast(TickBroadcast.class, b->{
-            time.compareAndSet(time.get(),time.get()+1);
-            cpu.processData();
-        });
         // register CPU
         MessageBusImpl.getInstance().register(this);
-        // subscribe to relevant messages in MessageBus
-        MessageBusImpl.getInstance().subscribeBroadcast(TickBroadcast.class,this);
+        // Add tick and callback to subscriptions
+        subscribeBroadcast(TickBroadcast.class, b-> {
+            //add a second to time counter
+            int f = time.get();
+            while (time.compareAndSet(f, f + 1)) {
+                f = time.get();
+            //tick the first data cpu is working at
+            cpu.processData();
+            }
+        });
     }
 }

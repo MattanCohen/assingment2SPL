@@ -22,9 +22,9 @@ public class Cluster {
 	private int timeCPU;
 	private int timeGPU;
 
-	public void statistics(){
-		timeCPU=
-	}
+//	public void statistics(){
+//		timeCPU=
+//	}
 
 	private static class SingletonHolder{
 		private static Cluster instance=new Cluster();
@@ -38,10 +38,10 @@ public class Cluster {
 	public void setGPUs(GPU[]_gpus){gpus=_gpus;}
 	public void setCPUs(CPU[]_cpus){cpus=_cpus;}
 
-	synchronized public void processBatch(DataBatch toProcess){
+	//add to optimal cpu the data. it will be processed with ticks
+	synchronized public void addBatchToProcess(DataBatch toProcess){
 		CPU work=getOptimalCPU(toProcess.getData().getType());
 		work.addData(toProcess);
-		work.processData();
 	}
 
 	/**

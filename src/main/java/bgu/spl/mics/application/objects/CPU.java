@@ -1,9 +1,15 @@
 package bgu.spl.mics.application.objects;
 
+import bgu.spl.mics.MicroPair;
+import sun.awt.image.DataBufferNative;
+import sun.awt.image.ImageWatched;
+import sun.tools.jconsole.InternalDialog;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Passive object representing a single CPU.
@@ -13,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CPU {
 
     final int cores;
-    Queue<DataBatch> data;
+    AtomicReference<Queue<MicroPair<Integer,DataBatch>>> data;
     final private Cluster cluster;
     // number of ticks required to clear queue
     private AtomicInteger ticksToClearQueue;
@@ -27,7 +33,7 @@ public class CPU {
         cores=_cores;
         cluster=_cluster;
         ticksToClearQueue = new AtomicInteger(0);
-        data = new LinkedList<>();
+        data = new AtomicReference<Queue<MicroPair<Integer,DataBatch>>>();
     }
 
     /**
@@ -37,24 +43,51 @@ public class CPU {
         return cores;
     }
 
+    public DataBatch removeFirstData() {
+        //remove first element in without
+        Queue<MicroPair<Integer, DataBatch>> with = data.get();
+        Queue<MicroPair<Integer, DataBatch>> without = data.get();
+        MicroPair<Integer,DataBatch> removed=without.remove();
+        while (data.compareAndSet(without, with)) {
+            with = data.get();
+            without = data.get();
+            removed=without.remove();
+        }
+        //substract ticks to clear queue accordingly
+        int before=ticksToClearQueue.get();
+        while (ticksToClearQueue.compareAndSet(before,before-removed.first()))
+            before=ticksToClearQueue.get();
+        //change removed pair's databatch to processed
+        removed.second().finishProcessing();
+        //return dataBatch removed
+        return removed.second();
+    }
+
+
     /**
      * add data to the collection
-     * @param data
+     * @param newData
      * @pre data is not in queue this.data
      * @post data is in queue this.data
      */
-    public void addData(DataBatch data){
-        // add batch to queue
-        this.data.add(data);
-        // calculate and add num of ticks needed to process batch
-        Data.Type dType =data.getData().getType();
-        int tickMultiplier = 1;
-        // based on data type we ticks needed to process data change
-        if (dType==Data.Type.Images) {tickMultiplier=4;}
-        else if (dType==Data.Type.Tabular) {tickMultiplier=2;}
-
-        // make sure data addition is done without multiple threads
-        ticksToClearQueue.compareAndSet(ticksToClearQueue.intValue(),ticksToClearQueue.intValue()+(32/cores)*tickMultiplier);
+    public void addData(DataBatch newData){
+        //create copy queue with newData to change to
+        Queue<MicroPair<Integer,DataBatch>> without= data.get();
+        Queue<MicroPair<Integer,DataBatch>> with= data.get();
+        //get time needed to calculate data batch
+        int timeNeeded=newData.getTimeToDoBatch(this);
+        //add pair with amount of time to calculate and the same dataBatch
+        with.add(new MicroPair<Integer, DataBatch>(timeNeeded,newData));
+        //try to atomically add data and time needed to calculate it:
+        while (data.compareAndSet(without,with)){
+            without= data.get();
+            with= data.get();
+            with.add(new MicroPair<Integer, DataBatch>(timeNeeded,newData));
+        }
+        // add ticks atomically to clear entire queue
+        int before=ticksToClearQueue.get();
+        while(ticksToClearQueue.compareAndSet(before,before+timeNeeded))
+            before=ticksToClearQueue.get();
     }
 
     /**
@@ -63,7 +96,7 @@ public class CPU {
      */
     //get number of batches cpu is handling
     public int getNumOfBatches(){
-        return data.size();
+        return data.get().size();
     }
 
     /**
@@ -79,10 +112,18 @@ public class CPU {
      * if getNumOfBatches()>0: @post.getNumOfBatches() = @pre.getNumOfBatches() - 1
      * if getNumOfBatches()>0: @post first batch in queue this.data is removed
      */
-    public DataBatch processData(){
+    synchronized public DataBatch processData(){
+        //if theres elements
+        if (data.get().size()>0){
+            //down 1 tick for first element in data queue
+            data.get().peek().setFirst(data.get().peek().first()-1);
+            //if first batch was running for enough ticks remove it from data queue and set as processed
+            if (data.get().peek().first()==0){
+                return removeFirstData();
+            }
+        }
+        //if theres no elements
         return null;
-
-        // update ticksToClearQueue each time a tick passes with compareandset
     }
 
     /**

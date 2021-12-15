@@ -66,7 +66,8 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-            subscriptions.put(type,callback);
+        subscriptions.put(type,callback);
+        MessageBusImpl.getInstance().subscribeEvent(type, this);
     }
 
     /**
@@ -91,6 +92,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
         subscriptions.put(type,callback);
+        MessageBusImpl.getInstance().subscribeBroadcast(type, this);
     }
 
     /**
@@ -164,12 +166,14 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         if (!initialized){
+            initialized=true;
             initialize();
             while (!terminated) {
                 try{
                     Message toDo=MessageBusImpl.getInstance().awaitMessage(this);
                     subscriptions.get(toDo).call(toDo);
                 }catch(IllegalStateException e){
+                    MessageBusImpl.getInstance().unregister(this);
                 } catch(InterruptedException e){
                 }
             }
@@ -180,7 +184,9 @@ public abstract class MicroService implements Runnable {
                     Message toDo=MessageBusImpl.getInstance().awaitMessage(this);
                     subscriptions.get(toDo).call(toDo);
                 }catch(IllegalStateException e){
-                } catch(InterruptedException e){
+                    throw e;
+                } catch(InterruptedException ext){
+                    throw new IllegalArgumentException();
                 }
             }
         }
